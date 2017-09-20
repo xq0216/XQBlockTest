@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  TableViewController.h
 //  XQBlockTest
 //
 //  Created by LaiXuefei on 2017/9/20.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
-
+@interface TableViewController : UITableViewController
 
 @end
-
