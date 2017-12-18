@@ -89,6 +89,27 @@ block 引用 self 的方式，可以是调用 self 的 **方法** ，使用 self
 
 解决循环引用的方式还是如上面所述的三点即可。
 
+# 四、其他
+
+以下罗列出不同情况下，block 的声明方式（demo中也有备注）：
+
+## 1、作为局部变量
+        returnType (^blockName)(parameterTypes) = ^returnType(parameters) {...};
+
+## 2、作为属性
+        @property (nonatomic, copy, nullability) returnType (^blockName)(parameterTypes);
+
+## 3、方法声明时，作为参数
+        - (void)someMethodThatTakesABlock:(returnType (^nullability)(parameterTypes))blockName;
+
+## 4、方法调用时，作为参数
+        [someObject someMethodThatTakesABlock:^returnType (parameters) {...}];
+
+## 5、使用 typedef 声明
+        typedef returnType (^TypeName)(parameterTypes);
+        TypeName blockName = ^returnType(parameters) {...};
+
+
 
 
 
