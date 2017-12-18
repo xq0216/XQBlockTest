@@ -91,7 +91,8 @@ block 引用 self 的方式，可以是调用 self 的 **方法** ，使用 self
 
 # 四、其他
 
-以下罗列出不同情况下，block 的声明方式（demo中也有备注）：
+以下罗列出不同情况下，block 的声明方式，demo中也有相应备注：
+（ps：以下 block 声明方式的总结来源于：http://fuckingblocksyntax.com/ ，感谢作者分享！）
 
 ## 1、作为局部变量
         returnType (^blockName)(parameterTypes) = ^returnType(parameters) {...};
