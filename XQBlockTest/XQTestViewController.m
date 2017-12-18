@@ -17,6 +17,13 @@
 
 static CGFloat const delayTime = 3.;
 
+
+/**
+ ******** block 的声明方式 *********
+ * 【利用 typedef 声明 block 】
+ * typedef returnType (^TypeName)(parameterTypes);
+ * TypeName blockName = ^returnType(parameters) {...};
+ */
 typedef void (^XQTestBlock)() ;
 
 @interface XQTestViewController (){
@@ -24,19 +31,23 @@ typedef void (^XQTestBlock)() ;
     XQTestBlock p_block;
 }
 @property(nonatomic, strong)NSString *testStr;
+
+/**
+ ******** block 的声明方式 *********
+ * 【 block 作为属性的申明方式】
+ * @property (nonatomic, copy, nullability) returnType (^blockName)(parameterTypes);
+ */
 @property(nonatomic, strong)XQTestBlock block;
 @end
 
 @implementation XQTestViewController
 - (void)dealloc{
-    NSLog(@">>> delloc 执行了 <<<<");
+    NSLog(@">>> delloc 执行了 <<<<\n\n");
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
      p_testStr = @"成员变量";
-
     self.testStr = @"属性";
 
     //根据所选类型，演示block
@@ -87,10 +98,17 @@ typedef void (^XQTestBlock)() ;
  演示临时变量 tempBlock 对 self 进行强引用是否会造成循环引用
  */
 - (void)tempBlock{
+    NSLog(@"**** 演示临时变量 tempBlock 对 self 进行强引用是否会造成循环引用 ****");
      //self 没有持有 testBlock，故 testBlock 直接强引用 self，没有形成闭环，界面返回时，该类实例还是会释放
+
+    /**
+     ******** block 的声明方式 *********
+     * 【 block 作为局部变量的申明方式】
+     * returnType (^blockName)(parameterTypes) = ^returnType(parameters) {...};
+     */
     void (^testBlock)() = ^(){
         self.testStr = @"Hello block";
-        NSLog(@"testBlock执行了 -- self.testStr = %@",self.testStr);
+        NSLog(@"临时变量 testBlock 执行了 -- self.testStr = %@",self.testStr);
     };
     testBlock();
 }
@@ -99,9 +117,19 @@ typedef void (^XQTestBlock)() ;
  演示临时变量 testBlock 中含有 GCD，而 GCD 对 self 进行强引用是否会造成循环引用
  */
 - (void)tempBlockAndGCD{
+    NSLog(@"**** 演示临时变量 testBlock 中含有 GCD，而 GCD 对 self 进行强引用是否会造成循环引用 ****");
     //self 没有持有 testBlock，故 testBlock 持有 GCD，而 GCD 直接强引用 self，没有形成闭环，界面返回时，GCD执行完了后，该类实例还是会释放
     void (^testBlock)() = ^(){
-        NSLog(@">>>testBlock执行了<<<<");
+        NSLog(@">>>临时变量 testBlock 执行了<<<<");
+
+        /**
+         ******** block 的声明方式 *********
+         * 【申明方法时，block 作为方法参数的申明方式】
+         * - (void)someMethodThatTakesABlock:(returnType (^nullability)(parameterTypes))blockName;
+         *
+         * 【调用方法时，block 作为方法参数的申明方式】
+         * [someObject someMethodThatTakesABlock:^returnType (parameters) {...}];
+         */
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             self.testStr = @"Hello block";
             NSLog(@"gcd执行了 -- self.testStr = %@",self.testStr);
@@ -114,10 +142,11 @@ typedef void (^XQTestBlock)() ;
  演示成员变量 p_block 对 self 进行引用，如何不造成循环引用
  */
 - (void)memberBlock{
+    NSLog(@"**** 演示成员变量 p_block 对 self 进行引用，如何不造成循环引用 ****");
     WEAK_SELF_OBJ(self)
     p_block = ^(){
         STRONG_SELF_OBJ(weakSelf)
-        NSLog(@"p_block执行了 -- p_testStr = %@",strongSelf -> p_testStr);//若直接用p_testStr，则实际上用的是 self -> p_testStr，则界面返回，不会释放该类实例
+        NSLog(@"成员变量 p_block 执行了 -- p_testStr = %@",strongSelf -> p_testStr);//若直接用p_testStr，则实际上用的是 self -> p_testStr，则界面返回，不会释放该类实例
     };
     p_block();
 
@@ -135,9 +164,10 @@ typedef void (^XQTestBlock)() ;
  演示成员变量 p_block 中含有 GCD，而 GCD 对 self 进行引用，如何不造成循环引用
  */
 - (void)memberBlockAndGCD{
+    NSLog(@"**** 演示成员变量 p_block 中含有 GCD，而 GCD 对 self 进行引用，如何不造成循环引用 ****");
     WEAK_SELF_OBJ(self)
     p_block = ^(){
-        NSLog(@">>>>p_block执行了<<<");
+        NSLog(@">>>>成员变量 p_block 执行了<<<");
         STRONG_SELF_OBJ(weakSelf)
         //若用self，则界面返回，该类实例不会释放（GCD还是会执行完）
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -166,9 +196,10 @@ typedef void (^XQTestBlock)() ;
  演示属性 block 对 self 进行引用，如何不造成循环引用
  */
 - (void)propertyBlock{
+    NSLog(@"**** 演示属性 block 对 self 进行引用，如何不造成循环引用 ****");
     WEAK_SELF_OBJ(self)
     self.block = ^(){
-        NSLog(@"block 执行了 -- self.testStr = %@",weakSelf.testStr);//若用self.testStr，则界面返回，不会释放该类实例
+        NSLog(@"属性 block 执行了 -- self.testStr = %@",weakSelf.testStr);//若用self.testStr，则界面返回，不会释放该类实例
     };
     self.block();
 
@@ -183,12 +214,13 @@ typedef void (^XQTestBlock)() ;
 }
 
 /**
- 演示成员变量 p_block 中含有 GCD，而 GCD 对 self 进行引用，如何不造成循环引用
+ 演示属性 block 中含有 GCD，而 GCD 对 self 进行引用，如何不造成循环引用
  */
 - (void)propertyBlockAndGCD{
+    NSLog(@"**** 演示属性 block 中含有 GCD，而 GCD 对 self 进行引用，如何不造成循环引用 ****");
     WEAK_SELF_OBJ(self)
     self.block = ^(){
-        NSLog(@">>>>block执行了<<<");
+        NSLog(@">>>>属性 block 执行了<<<");
         STRONG_SELF_OBJ(weakSelf)
         //若用self，则界面返回，该类实例不会释放（GCD还是会执行完）
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
